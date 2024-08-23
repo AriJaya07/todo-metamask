@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 
 import Form from "./manage/form";
 import Header from "./manage/header";
@@ -11,8 +10,10 @@ import { connectMetaMask, signMessage } from "@/@utils/auth";
 import { ToastShow } from "@/@entity/TodoList";
 import ToastSucc from "./manage/toastSucc";
 import ToastFailed from "./manage/toastFailed";
+import { useAuth } from "./authContext";
 
-export default function TodoComp(): JSX.Element {
+const TodoComp: React.FC = () => {
+  const { address, isAuthenticated, login, logout } = useAuth();
   const [isSignIn, setIsSign] = useState<boolean>(false);
 
   const [isToastShow, setIsToastShow] = useState<ToastShow>({
@@ -20,45 +21,42 @@ export default function TodoComp(): JSX.Element {
     failed: false,
   });
 
-  const [address, setAddress] = useState<any>(null);
-
   const handleLogin = async () => {
     const addr = await connectMetaMask();
     if (addr) {
-      setAddress(addr);
       const address = `${addr}`;
       const signature = await signMessage(address);
-      try {
-        const res = await axios.post('/api/auth', { address, signature });
-  
-        // Axios automatically parses JSON responses
-        // console.log(res, "Response Data");
-  
-        if (res.status === 200) {
-          setIsToastShow({
-            success: true,
-            failed: false,
-          });
-        } else {
+      if (signature) {
+        try {
+          await login(address, signature);
+
+          if (!isAuthenticated) {
+            setIsToastShow({
+              success: true,
+              failed: false,
+            });
+          } else {
+            setIsToastShow({
+              success: false,
+              failed: true,
+            });
+          }
+
+          setIsSign(false);
+        } catch (error) {
+          console.error("Error during Axios request:", error);
           setIsToastShow({
             success: false,
             failed: true,
           });
+        } finally {
+          setTimeout(() => {
+            setIsToastShow({
+              success: false,
+              failed: false,
+            });
+          }, 2000);
         }
-  
-        setTimeout(() => {
-          setIsToastShow({
-            success: false,
-            failed: false,
-          });
-        }, 2000);
-        setIsSign(false);
-      } catch (error) {
-        console.error("Error during Axios request:", error);
-        setIsToastShow({
-          success: false,
-          failed: true,
-        });
       }
     }
   };
@@ -66,6 +64,7 @@ export default function TodoComp(): JSX.Element {
   const handleSignPopup = () => {
     setIsSign(!isSignIn);
   };
+
   return (
     <div className="bg-[#ebebec] md:h-screen h-full">
       <Header onClick={handleSignPopup} address={address} />
@@ -93,4 +92,6 @@ export default function TodoComp(): JSX.Element {
       )}
     </div>
   );
-}
+};
+
+export default TodoComp;
