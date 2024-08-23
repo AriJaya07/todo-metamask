@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import Form from "./manage/form";
+import Form from "./form";
 import Header from "./manage/header";
 import Sign from "./manage/sign";
 
@@ -15,11 +15,28 @@ import { useAuth } from "./authContext";
 const TodoComp: React.FC = () => {
   const { address, isAuthenticated, login, logout } = useAuth();
   const [isSignIn, setIsSign] = useState<boolean>(false);
+  const [isSuccLogin, setIsSuccLogin] = useState<boolean>(false);
 
   const [isToastShow, setIsToastShow] = useState<ToastShow>({
     success: false,
     failed: false,
   });
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setIsToastShow({
+        success: true,
+        failed: false,
+      });
+
+      setTimeout(() => {
+        setIsToastShow({
+          success: false,
+          failed: false,
+        });
+      }, 2000);
+    }
+  }, [isAuthenticated]);
 
   const handleLogin = async () => {
     const addr = await connectMetaMask();
@@ -29,18 +46,6 @@ const TodoComp: React.FC = () => {
       if (signature) {
         try {
           await login(address, signature);
-
-          if (!isAuthenticated) {
-            setIsToastShow({
-              success: true,
-              failed: false,
-            });
-          } else {
-            setIsToastShow({
-              success: false,
-              failed: true,
-            });
-          }
 
           setIsSign(false);
         } catch (error) {
@@ -69,7 +74,7 @@ const TodoComp: React.FC = () => {
     <div className="bg-[#ebebec] md:h-screen h-full">
       <Header onClick={handleSignPopup} address={address} />
       <div className="2xl:p-[5em] p-[2em]">
-        <Form onCLick={handleSignPopup} />
+        <Form onCLick={handleSignPopup} isAuthenticated={isAuthenticated} />
       </div>
 
       {isSignIn && (

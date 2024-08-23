@@ -1,13 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import Sign from "./sign";
-import ClearTask from "./clearTask";
-import ToastSucc from "./toastSucc";
-import ToastFailed from "./toastFailed";
+import { ChangeEvent, FormEvent, useState } from "react";
+import Sign from "./manage/sign";
+import ClearTask from "./manage/clearTask";
+import ToastSucc from "./manage/toastSucc";
+import ToastFailed from "./manage/toastFailed";
 import { TaskActive, ToastShow } from "@/@entity/TodoList";
+import LockSign from "./manage/lockSign";
+import SuccSign from "./manage/succSign";
 
-export default function Form(props: { onCLick(): void }): JSX.Element {
+interface InputList {
+  task: string;
+  status: string;
+}
+
+export default function Form(props: {
+  onCLick(): void;
+  isAuthenticated: boolean;
+}): JSX.Element {
   const [isTaskActive, setIsTaskActive] = useState<TaskActive>({
     all: false,
     active: false,
@@ -18,6 +28,10 @@ export default function Form(props: { onCLick(): void }): JSX.Element {
     failed: false,
   });
   const [isClearTask, setIsClearTask] = useState<boolean>(false);
+  const [textInput, setTextInput] = useState<InputList>({
+    task: "",
+    status: "",
+  });
 
   const handleTaskActive = (key: "all" | "active" | "completed") => {
     setIsTaskActive({
@@ -27,8 +41,27 @@ export default function Form(props: { onCLick(): void }): JSX.Element {
     });
   };
 
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    textInput.status = "Active";
+     console.log(textInput, "text");
+    
+     setTextInput({
+      task: "",
+      status: ""
+     })
+  };
+
   const handleCelarTask = () => {
     setIsClearTask(!isClearTask);
+  };
+
+  const handleOnChangeInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setTextInput((prevData: any) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   return (
@@ -76,44 +109,32 @@ export default function Form(props: { onCLick(): void }): JSX.Element {
           </button>
         </div>
 
-        <div className="flex md:flex-row flex-col gap-[1em] w-full py-5">
+        <form
+          onSubmit={handleSubmit}
+          className="flex md:flex-row flex-col gap-[1em] w-full py-5"
+        >
           <div className="w-full">
             <input
               type="text"
+              name="task"
+              value={textInput.task}
+              onChange={handleOnChangeInput}
               placeholder="Add new tasks..."
               className="bg-white p-3.5 rounded-lg w-full"
             />
           </div>
           <div className="md:w-1/5 w-full">
             <button
-              type="button"
+              type="submit"
               className="md:text-[1em] text-[0.85em] font-[500] text-nowrap bg-gray-400 md:px-5 px-3 py-3 text-white w-full rounded-lg"
             >
               Add Task
             </button>
           </div>
-        </div>
+        </form>
 
-        <div className="flex flex-col justify-center items-center w-full border border-gray-300 bg-[#F4F4F5] rounded-lg p-10 gap-[1em]">
-          <div className="">
-            <img src="images/lock.png" alt="lock" className="w-[5em]" />
-          </div>
-          <div className="flex flex-col justify-center items-center gap-[0.5em]">
-            <p className="text-[1em] text-black">Sign in Required</p>
-            <p className="text-[0.85em] text-gray-500">
-              Hold on! You need to Sign In to create a task.
-            </p>
-            <div className="">
-              <button
-                type="button"
-                onClick={props.onCLick}
-                className="bg-black px-6 py-2 rounded-xl font-[400] text-[1em] text-white"
-              >
-                Sign In
-              </button>
-            </div>
-          </div>
-        </div>
+        {!props.isAuthenticated && <LockSign onClick={props.onCLick} />}
+        {props.isAuthenticated && <SuccSign />}
       </div>
 
       {isClearTask && <ClearTask onCLick={handleCelarTask} />}
