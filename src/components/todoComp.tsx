@@ -52,9 +52,9 @@ export default function TodoComp(): JSX.Element {
     setIsSign(!isSignIn);
   };
   return (
-    <div className="bg-[#ebebec] h-screen">
+    <div className="bg-[#ebebec] md:h-screen h-full">
       <Header onClick={handleSignPopup} address={address} />
-      <div className="p-[5em]">
+      <div className="2xl:p-[5em] p-[2em]">
         <Form onCLick={handleSignPopup} />
       </div>
 

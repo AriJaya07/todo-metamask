@@ -19,7 +19,7 @@ export default function Header(props: {
   };
 
   return (
-    <div className="flex flex-row justify-between p-5 bg-white">
+    <div className="flex flex-row justify-between md:px-10 px-5 py-5 bg-white">
       <div className="">
         <h5 className="text-[1.5em] font-[600]">TO-DO</h5>
       </div>
