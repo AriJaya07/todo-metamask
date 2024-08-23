@@ -26,11 +26,15 @@ export default function TodoComp(): JSX.Element {
     const addr = await connectMetaMask();
     if (addr) {
       setAddress(addr);
-      const message = `Sign in with your wallet to Todo App: ${addr}`;
-      const signature = await signMessage(message);
+      const address = `${addr}`;
+      const signature = await signMessage(address);
       try {
-        const res = await axios.post("api/auth", { message, signature });
-        if (res) {
+        const res = await axios.post('/api/auth', { address, signature });
+  
+        // Axios automatically parses JSON responses
+        // console.log(res, "Response Data");
+  
+        if (res.status === 200) {
           setIsToastShow({
             success: true,
             failed: false,
@@ -41,9 +45,20 @@ export default function TodoComp(): JSX.Element {
             failed: true,
           });
         }
+  
+        setTimeout(() => {
+          setIsToastShow({
+            success: false,
+            failed: false,
+          });
+        }, 2000);
         setIsSign(false);
       } catch (error) {
-        console.error(error);
+        console.error("Error during Axios request:", error);
+        setIsToastShow({
+          success: false,
+          failed: true,
+        });
       }
     }
   };

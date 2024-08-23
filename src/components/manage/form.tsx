@@ -118,12 +118,12 @@ export default function Form(props: { onCLick(): void }): JSX.Element {
 
       {isClearTask && <ClearTask onCLick={handleCelarTask} />}
       {isToastShow.success && (
-        <div className="fixed bottom-10 right-10 z-[10]">
+        <div className="fixed bottom-10 md:right-7 z-[10]">
           <ToastSucc />
         </div>
       )}
       {isToastShow.failed && (
-        <div className="fixed bottom-10 right-10 z-[10]">
+        <div className="fixed bottom-10 md:right-7 z-[10]">
           <ToastFailed />
         </div>
       )}

@@ -9,10 +9,10 @@ export default function ToastFailed(): JSX.Element {
             className="w-[1.5em] h-[1.5em]"
           />
           <div className="flex flex-col">
-            <p className="text-[1em] font-[500] text-red-500">
+            <p className="md:text-[1em] text-[0.85em] font-[500] text-red-500">
               Error Creating Task
             </p>
-            <p className="text-[0.85em] font-[400] text-red-500">
+            <p className="md:text-[1em] text-[0.85em] font-[400] text-red-500">
               Oops! Something went wrong. Unable to create task.
             </p>
           </div>

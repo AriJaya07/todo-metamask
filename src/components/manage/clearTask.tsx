@@ -1,7 +1,7 @@
 export default function ClearTask(props: {onCLick(): void}): JSX.Element {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white px-10 py-6 rounded-lg shadow-md w-1/2 flex flex-col justify-center">
+      <div className="bg-white px-10 py-6 rounded-lg shadow-md md:w-1/2 w-5/6 flex flex-col justify-center">
         <div className="flex flex-col gap-[0.5em]">
           <p className="text-[1.5em] font-[600] text-black">Clear Completed Task?</p>
           <p className="text-[0.85em] font-[500] text-gray-500">
