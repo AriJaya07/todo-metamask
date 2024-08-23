@@ -15,19 +15,15 @@ datasource db {
 
 model User {
   id Int @id @default(autoincrement())
-  eth_address String
-  signed_message String
-  signature String
-  nonce String
-  timestamp DateTime @default(now())
-  message_data String
-  is_verified Boolean
+  address String @unique
+  todos Todo[]
 }
 
 model Todo {
   id Int @id @default(autoincrement())
-  name String
-  status String
+  title String
+  completed Boolean @default(false)
+  userId Int
+  user User @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }

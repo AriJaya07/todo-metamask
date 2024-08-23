@@ -1,4 +1,10 @@
-export default function Sign(props: { onClick(): void }): JSX.Element {
+"use client";
+
+export default function Sign(props: {
+  onClick(): void;
+  handleLogin(): Promise<void>;
+  address: any;
+}): JSX.Element {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white px-10 py-6 rounded-lg shadow-md w-1/2 flex flex-col justify-center">
@@ -19,7 +25,11 @@ export default function Sign(props: { onClick(): void }): JSX.Element {
             <img src="images/metamask.png" alt="metamask" className="w-[2em]" />
           </div>
           <div className="">
-            <p className="text-gray-500 text-[1em]">Sign In with Metamask</p>
+            <p onClick={props.handleLogin} className="text-gray-500 text-[1em]">
+              {props.address
+                ? `Connected: ${props.address}`
+                : "Sign In with Metamask"}
+            </p>
           </div>
         </button>
       </div>

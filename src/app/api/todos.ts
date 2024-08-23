@@ -1,24 +1,20 @@
-import { PrismaClient } from "@prisma/client";
-import { NextApiRequest, NextApiResponse } from "next";
+import prisma from "@/@utils/prisma";
 
-const prisma = new PrismaClient();
+export default async function todosHandler(req: any, res: any) {
+  const { userId } = req.query;
 
-export default async function todoGetHandler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  try {
+  if (req.method === "GET") {
     const todos = await prisma.todo.findMany({
-      select: {
-        id: true,
-        name: true,
-        status: true,
-        createdAt: true,
-        updatedAt: true,
-      },
+      where: { userId: parseInt(userId) },
     });
-    res.status(200).json({ todos });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch todos" });
+    res.status(200).json(todos);
+  } else if (req.method === "POST") {
+    const { title, userId } = req.body;
+    const newTodo = await prisma.todo.create({
+      data: { title, userId: parseInt(userId) },
+    });
+    res.status(201).json(newTodo);
+  } else {
+    res.status(405).json({ message: "Method not allowed" });
   }
 }

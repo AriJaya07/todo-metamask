@@ -5,17 +5,7 @@ import Sign from "./sign";
 import ClearTask from "./clearTask";
 import ToastSucc from "./toastSucc";
 import ToastFailed from "./toastFailed";
-
-interface TaskActive {
-  all: boolean;
-  active: boolean;
-  completed: boolean;
-}
-
-interface ToastShow {
-  success: boolean;
-  failed: boolean;
-}
+import { TaskActive, ToastShow } from "@/@entity/TodoList";
 
 export default function Form(props: { onCLick(): void }): JSX.Element {
   const [isTaskActive, setIsTaskActive] = useState<TaskActive>({
