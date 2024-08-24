@@ -7,6 +7,7 @@ import ToastFailed from "./manage/toastFailed";
 import { DataTodo, TaskActive, ToastShow } from "@/@entity/TodoList";
 import LockSign from "./manage/lockSign";
 import SuccSign from "./manage/succSign";
+import axios from "axios";
 
 interface InputList {
   task: string;
@@ -64,17 +65,42 @@ export default function Form(props: {
     }
   }, [props.isAuthenticated]);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     const newTask: DataTodo = {
+      userId: 1,
       title: textInput.task,
       status: "active",
-      createdAt: new Date().toLocaleDateString("en-US", {
-        day: "2-digit",
-        month: "short",
-      }),
+      createdAt: new Date().toISOString(),
     };
+    console.log(newTask, "PPPN")
+
+    try {
+      const response = await axios.post("/api/todos", newTask);
+      console.log(response, "pppS")
+
+      if (response.status === 200) {
+        setIsToastShow({
+          success: true,
+          failed: false,
+        });
+      } else {
+        setIsToastShow({
+          success: false,
+          failed: true,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTimeout(() => {
+        setIsToastShow({
+          success: false,
+          failed: false,
+        });
+      }, 2000);
+    }
 
     setFilterData((prevData) => [...prevData, newTask]);
 

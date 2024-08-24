@@ -18,6 +18,7 @@ export interface TaskActive {
   }
 
   export interface DataTodo {
+    userId: number
     title: string;
     status: string;
     createdAt: string;

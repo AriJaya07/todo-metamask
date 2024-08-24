@@ -20,9 +20,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const response = await axios.post('/api/auth', { address, signature });
 
+      console.log(response, "PPP")
       if (response.status === 200) {
         setAddress(address);
         setIsAuthenticated(true);
+        
       } else {
         setIsAuthenticated(false);
       }
