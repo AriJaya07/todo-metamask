@@ -78,7 +78,7 @@ const TodoComp: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#ebebec] md:h-screen h-full">
+    <div className="bg-[#ebebec] min-h-screen">
       <Header
         onClick={handleSignPopup}
         logout={handleLogout}

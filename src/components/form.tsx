@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import ClearTask from "./manage/clearTask";
 import ToastSucc from "./manage/toastSucc";
 import ToastFailed from "./manage/toastFailed";
@@ -11,11 +11,6 @@ import axios from "axios";
 
 interface InputList {
   task: string;
-  status: string;
-}
-
-interface CheckList {
-  id: number;
   status: string;
 }
 
@@ -38,11 +33,6 @@ export default function Form(props: {
   const [isClearTask, setIsClearTask] = useState<boolean>(false);
   const [textInput, setTextInput] = useState<InputList>({
     task: "",
-    status: "",
-  });
-
-  const [checkStatus, setCheckStatus] = useState<CheckList>({
-    id: 0,
     status: "",
   });
 
@@ -322,7 +312,7 @@ export default function Form(props: {
         </div>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit} autoComplete="off"
           className="flex md:flex-row flex-col gap-[1em] w-full py-5"
         >
           <div className="w-full">
@@ -333,7 +323,7 @@ export default function Form(props: {
                 value={textInput.task}
                 onChange={handleOnChangeInput}
                 placeholder="Add new tasks..."
-                className="bg-white p-3 rounded-lg w-full"
+                className="bg-white p-3 rounded-lg w-full focus:outline-none"
                 disabled={!props.isAuthenticated}
               />
               <div className="w-full">

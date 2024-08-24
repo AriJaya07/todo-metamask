@@ -3,6 +3,8 @@
 import { DataTodo } from "@/@entity/TodoList";
 import moment from "moment";
 
+import styles from "../todos.module.css";
+
 export default function SuccSign(props: {
   data: DataTodo[];
   setData: (id: number, status: string) => void;
@@ -25,14 +27,17 @@ export default function SuccSign(props: {
           {props.data.map((item: DataTodo, index: number) => (
             <div key={index} className="bg-white p-5 my-5 rounded-lg">
               <div className="flex flex-row items-center gap-[0.8em]">
-                <div className="flex flex-col">
-                  <input
-                    type="checkbox"
-                    name="status"
-                    checked={item.status === "completed"}
-                    onChange={() => handleOnCheckBox(item.id)}
-                    className="cursor-pointer"
-                  />
+                <div className="flex flex-col items-center">
+                  <label className={styles.customCheckbox}>
+                    <input
+                      type="checkbox"
+                      name="status"
+                      checked={item.status === "completed"}
+                      onChange={() => handleOnCheckBox(item.id)}
+                      className={`${styles.checkmark} cursor-pointer`}
+                    />
+                    <span className={styles.checkmark}></span>
+                  </label>
                   <input type="checkbox" className="invisible h-4" />
                 </div>
                 <div className="flex flex-col">
