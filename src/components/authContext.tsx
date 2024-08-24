@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import React, { createContext, useContext, ReactNode, useState } from 'react';
-import axios from 'axios';
+import React, { createContext, useContext, ReactNode, useState } from "react";
+import axios from "axios";
 
 interface AuthContextType {
   address: string | null;
@@ -12,24 +12,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [address, setAddress] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   const login = async (address: string, signature: string) => {
     try {
-      const response = await axios.post('/api/auth', { address, signature });
+      const response = await axios.post("/api/auth", { address, signature });
 
-      console.log(response, "PPP")
       if (response.status === 200) {
         setAddress(address);
         setIsAuthenticated(true);
-        
+
+        const user = JSON.stringify(response.data);
+        localStorage.setItem("user", user);
       } else {
         setIsAuthenticated(false);
       }
     } catch (error) {
-      console.error('Error during Axios request:', error);
+      console.error("Error during Axios request:", error);
       setIsAuthenticated(false);
     }
   };
@@ -49,7 +52,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

@@ -68,17 +68,23 @@ export default function Form(props: {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
+    const dataLocal = localStorage.getItem("user");
+    let userId: number = 0;
+
+    if (dataLocal) {
+      const userData = JSON.parse(dataLocal);
+      userId = userData.user.id;
+    }
+
     const newTask: DataTodo = {
-      userId: 1,
+      userId: userId,
       title: textInput.task,
       status: "active",
       createdAt: new Date().toISOString(),
     };
-    console.log(newTask, "PPPN")
 
     try {
       const response = await axios.post("/api/todos", newTask);
-      console.log(response, "pppS")
 
       if (response.status === 200) {
         setIsToastShow({
@@ -179,11 +185,13 @@ export default function Form(props: {
               onChange={handleOnChangeInput}
               placeholder="Add new tasks..."
               className="bg-white p-3.5 rounded-lg w-full"
+              disabled={!props.isAuthenticated}
             />
           </div>
           <div className="md:w-1/5 w-full">
             <button
               type="submit"
+              disabled={!props.isAuthenticated}
               className="md:text-[1em] text-[0.85em] font-[500] text-nowrap bg-gray-400 md:px-5 px-3 py-3 text-white w-full rounded-lg"
             >
               Add Task
