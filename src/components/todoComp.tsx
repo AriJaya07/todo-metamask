@@ -15,7 +15,6 @@ import { useAuth } from "./authContext";
 const TodoComp: React.FC = () => {
   const { address, isAuthenticated, login, logout } = useAuth();
   const [isSignIn, setIsSign] = useState<boolean>(false);
-  const [isSuccLogin, setIsSuccLogin] = useState<boolean>(false);
 
   const [isToastShow, setIsToastShow] = useState<ToastShow>({
     success: false,
@@ -80,9 +79,17 @@ const TodoComp: React.FC = () => {
 
   return (
     <div className="bg-[#ebebec] md:h-screen h-full">
-      <Header onClick={handleSignPopup} logout={handleLogout} address={address} />
+      <Header
+        onClick={handleSignPopup}
+        logout={handleLogout}
+        address={address}
+      />
       <div className="2xl:p-[5em] p-[2em]">
-        <Form onClick={handleSignPopup}  isAuthenticated={isAuthenticated} />
+        <Form
+          onClick={handleSignPopup}
+          isAuthenticated={isAuthenticated}
+          logout={logout}
+        />
       </div>
 
       {isSignIn && (

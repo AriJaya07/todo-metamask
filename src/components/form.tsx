@@ -22,6 +22,7 @@ interface CheckList {
 export default function Form(props: {
   onClick(): void;
   isAuthenticated: boolean;
+  logout(): void;
 }): JSX.Element {
   const [isTaskActive, setIsTaskActive] = useState<TaskActive>({
     all: false,
@@ -170,10 +171,8 @@ export default function Form(props: {
   };
 
   const handlePutTodo = async (id: number, status: string) => {
-    console.log("Updating todo with:", id, status);
     try {
       const response = await axios.put("/api/todos", { id, status });
-      console.log(response.data, "PPP");
 
       if (response.status === 200) {
         setIsToastShow({
@@ -196,6 +195,44 @@ export default function Form(props: {
           failed: false,
         });
       }, 2000);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    const dataLocal = localStorage.getItem("user");
+    let userId: number = 0;
+
+    if (dataLocal) {
+      const userData = JSON.parse(dataLocal);
+      userId = userData.user.id;
+    }
+    try {
+      const response = await axios.delete("/api/todos", { params: { userId } });
+
+      setIsClearTask(true);
+      if (response.status === 200) {
+        props.logout();
+        localStorage.removeItem("user");
+
+        setIsClearTask(false);
+
+        setIsToastShow({
+          success: true,
+          failed: false,
+        });
+      } else {
+        setIsToastShow({
+          success: false,
+          failed: true,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsToastShow({
+        success: false,
+        failed: false,
+      });
     }
   };
 
@@ -235,7 +272,7 @@ export default function Form(props: {
           >
             <p className="text-center font-[600] text-[1em]">All</p>
             <div className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              {filterData && filterData.length > 0 ? (
+              {props.isAuthenticated && filterData && filterData.length > 0 ? (
                 <p>{filterData.length}</p>
               ) : (
                 <p>0</p>
@@ -251,9 +288,8 @@ export default function Form(props: {
           >
             <p className="text-center font-[600] text-[1em]">Active</p>
             <div className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              {filterData && filterData.length > 0 ? (
+              {props.isAuthenticated && filterData && filterData.length > 0 ? (
                 <p>
-                  {/* Count items where status is "active" */}
                   {filterData.filter((item) => item.status === "active").length}
                 </p>
               ) : (
@@ -270,7 +306,7 @@ export default function Form(props: {
           >
             <p className="text-center font-[600] text-[1em]">Completed</p>
             <div className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              {filterData && filterData.length > 0 ? (
+              {props.isAuthenticated && filterData && filterData.length > 0 ? (
                 <p>
                   {/* Count items where status is "active" */}
                   {
@@ -290,17 +326,65 @@ export default function Form(props: {
           className="flex md:flex-row flex-col gap-[1em] w-full py-5"
         >
           <div className="w-full">
-            <input
-              type="text"
-              name="task"
-              value={textInput.task}
-              onChange={handleOnChangeInput}
-              placeholder="Add new tasks..."
-              className="bg-white p-3 rounded-lg w-full"
-              disabled={!props.isAuthenticated}
-            />
+            <div className="flex flex-col gap-[1em]">
+              <input
+                type="text"
+                name="task"
+                value={textInput.task}
+                onChange={handleOnChangeInput}
+                placeholder="Add new tasks..."
+                className="bg-white p-3 rounded-lg w-full"
+                disabled={!props.isAuthenticated}
+              />
+              <div className="w-full">
+                {props.isAuthenticated &&
+                filterData &&
+                filterData.length > 0 ? (
+                  <div className="">
+                    {isTaskActive.all ? (
+                      <span className="flex flex-row gap-[0.5em] text-[0.85em] font-[400]">
+                        Active Task{" "}
+                        <p className="bg-black px-2.5 py-0.5 rounded-xl text-[0.75em] font-[500] text-white">
+                          {
+                            filterData.filter(
+                              (item) => item.status === "active"
+                            ).length
+                          }
+                        </p>
+                      </span>
+                    ) : isTaskActive.active ? (
+                      <span className="flex flex-row gap-[0.5em] text-[0.85em] font-[400]">
+                        Active Task{" "}
+                        <p className="bg-black px-2.5 py-0.5 rounded-xl text-[0.75em] font-[500] text-white">
+                          {
+                            filterData.filter(
+                              (item) => item.status === "active"
+                            ).length
+                          }
+                        </p>
+                      </span>
+                    ) : isTaskActive.completed ? (
+                      <span className="flex flex-row gap-[0.5em] text-[0.85em] font-[400]">
+                        Completed Task{" "}
+                        <p className="bg-black px-2.5 py-0.5 rounded-xl text-[0.75em] font-[500] text-white">
+                          {
+                            filterData.filter(
+                              (item) => item.status === "completed"
+                            ).length
+                          }
+                        </p>
+                      </span>
+                    ) : (
+                      ""
+                    )}{" "}
+                  </div>
+                ) : (
+                  ""
+                )}
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col items-center gap-[0.5em] md:w-1/5 w-full">
+          <div className="flex flex-col items-center gap-[1em] md:w-1/5 w-full">
             <button
               type="submit"
               disabled={!props.isAuthenticated}
@@ -308,12 +392,18 @@ export default function Form(props: {
             >
               Add Task
             </button>
-            <button
-              type="button"
-              className="text-[0.85em] text-black font-[500]"
-            >
-              Clear Completed
-            </button>
+            {props.isAuthenticated && filterData && filterData.length > 0 ? (
+              <button
+                type="button"
+                onClick={handleCelarTask}
+                className="text-[0.85em] text-black font-[500]"
+                disabled={!props.isAuthenticated}
+              >
+                Clear Completed
+              </button>
+            ) : (
+              ""
+            )}
           </div>
         </form>
 
@@ -323,7 +413,9 @@ export default function Form(props: {
         )}
       </div>
 
-      {isClearTask && <ClearTask onCLick={handleCelarTask} />}
+      {isClearTask && (
+        <ClearTask onCLick={handleCelarTask} clearTask={handleDeleteAll} />
+      )}
       {isToastShow.success && (
         <div className="fixed bottom-10 md:right-7 z-[10]">
           <ToastSucc />

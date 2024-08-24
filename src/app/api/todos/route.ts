@@ -79,3 +79,33 @@ export async function PUT(req: Request) {
     }
   }
 }
+
+export async function DELETE(req: Request) {
+  if (req.method === "DELETE") {
+    try {
+      const url = new URL(req.url);
+      const userId = url.searchParams.get("userId");
+
+      if (!userId || isNaN(Number(userId))) {
+        return NextResponse.json({ message: "Invalid userId", status: 400 });
+      }
+
+      const parseUserId = parseInt(userId);
+
+      await prisma.todo.deleteMany({
+        where: { userId: parseUserId },
+      });
+
+      await prisma.user.delete({
+        where: { id: parseUserId },
+      });
+
+      return NextResponse.json({ message: "Data deleted successfully" });
+    } catch (e) {
+      return NextResponse.json(
+        { message: `Internal Server Error: ${e}` },
+        { status: 500 }
+      );
+    }
+  }
+}
