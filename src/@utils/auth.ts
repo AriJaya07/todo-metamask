@@ -13,6 +13,7 @@ export const connectMetaMask = async () => {
       return null;
     }
   } else {
+    alert("MetaMask not installed");
     console.error("MetaMask not installed");
     return null;
   }
@@ -24,7 +25,7 @@ export const signMessage = async (message: any) => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       const signature = await signer.signMessage(message);
-      return signature
+      return signature;
     } catch (error) {
       console.error(error);
       return null;
