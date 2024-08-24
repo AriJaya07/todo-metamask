@@ -1,23 +1,21 @@
 "use client";
 
 import { DataTodo } from "@/@entity/TodoList";
+import moment from "moment";
 
 export default function SuccSign(props: {
   data: DataTodo[];
-  setData: any;
+  setData: (id: number, status: string) => void;
 }): JSX.Element {
-    
-  const handleOnCheckBox = (index: number) => {
-    props.setData((prevState: DataTodo[]) =>
-      prevState.map((item, i) =>
-        i === index
-          ? {
-              ...item,
-              status: item.status === "active" ? "completed" : "active",
-            }
-          : item
-      )
-    );
+  const handleOnCheckBox = (id?: number) => {
+    if (id) {
+      const updatedTodo = props.data.find((todo) => todo.id === id);
+      if (updatedTodo) {
+        const newStatus =
+          updatedTodo.status === "active" ? "completed" : "active";
+        props.setData(id, newStatus);
+      }
+    }
   };
 
   return (
@@ -32,7 +30,7 @@ export default function SuccSign(props: {
                     type="checkbox"
                     name="status"
                     checked={item.status === "completed"}
-                    onChange={() => handleOnCheckBox(index)}
+                    onChange={() => handleOnCheckBox(item.id)}
                     className="cursor-pointer"
                   />
                   <input type="checkbox" className="invisible h-4" />
@@ -40,7 +38,7 @@ export default function SuccSign(props: {
                 <div className="flex flex-col">
                   <p className="text-[1em] font-[600]">{item.title}</p>
                   <p className="text-gray-500 text-[0.85em] font-[400]">
-                    Created at {item.createdAt}
+                    Created at {moment(item.createdAt).format("ll")}
                   </p>
                 </div>
               </div>

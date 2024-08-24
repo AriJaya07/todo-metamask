@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import ClearTask from "./manage/clearTask";
 import ToastSucc from "./manage/toastSucc";
 import ToastFailed from "./manage/toastFailed";
@@ -11,6 +11,11 @@ import axios from "axios";
 
 interface InputList {
   task: string;
+  status: string;
+}
+
+interface CheckList {
+  id: number;
   status: string;
 }
 
@@ -35,6 +40,11 @@ export default function Form(props: {
     status: "",
   });
 
+  const [checkStatus, setCheckStatus] = useState<CheckList>({
+    id: 0,
+    status: "",
+  });
+
   const [filterData, setFilterData] = useState<DataTodo[]>([]);
 
   const handleTaskActive = (key: "all" | "active" | "completed") => {
@@ -45,15 +55,22 @@ export default function Form(props: {
     });
   };
 
-  useEffect(() => {
+  const dataFilterTodo = useMemo(() => {
     if (isTaskActive.all) {
-      setFilterData(filterData);
+      return filterData;
     } else if (isTaskActive.active) {
-      setFilterData(filterData.filter((item) => item.status === "active"));
+      return filterData.filter((item) => item.status === "active");
     } else if (isTaskActive.completed) {
-      setFilterData(filterData.filter((item) => item.status === "completed"));
+      return filterData.filter((item) => item.status === "completed");
     }
-  }, [isTaskActive]);
+    return filterData; // Default case
+  }, [filterData, isTaskActive]);
+
+  useEffect(() => {
+    if (props.isAuthenticated) {
+      handleGetTodo();
+    }
+  }, [props.isAuthenticated]);
 
   useEffect(() => {
     if (props.isAuthenticated) {
@@ -64,6 +81,43 @@ export default function Form(props: {
       });
     }
   }, [props.isAuthenticated]);
+
+  const handleGetTodo = async () => {
+    const dataLocal = localStorage.getItem("user");
+    let userId: number = 0;
+
+    if (dataLocal) {
+      const userData = JSON.parse(dataLocal);
+      userId = userData.user.id;
+    }
+
+    try {
+      const response = await axios.get("/api/todos", { params: { userId } });
+
+      if (response.status === 200) {
+        setFilterData(response.data.todos);
+        setIsToastShow({
+          success: true,
+          failed: false,
+        });
+      } else {
+        setFilterData([]);
+        setIsToastShow({
+          success: false,
+          failed: true,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTimeout(() => {
+        setIsToastShow({
+          success: false,
+          failed: false,
+        });
+      }, 2000);
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -91,6 +145,7 @@ export default function Form(props: {
           success: true,
           failed: false,
         });
+        await handleGetTodo();
       } else {
         setIsToastShow({
           success: false,
@@ -108,24 +163,60 @@ export default function Form(props: {
       }, 2000);
     }
 
-    setFilterData((prevData) => [...prevData, newTask]);
-
     setTextInput({
       task: "",
       status: "",
     });
   };
 
+  const handlePutTodo = async (id: number, status: string) => {
+    console.log("Updating todo with:", id, status);
+    try {
+      const response = await axios.put("/api/todos", { id, status });
+      console.log(response.data, "PPP");
+
+      if (response.status === 200) {
+        setIsToastShow({
+          success: true,
+          failed: false,
+        });
+        await handleGetTodo();
+      } else {
+        setIsToastShow({
+          success: false,
+          failed: true,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTimeout(() => {
+        setIsToastShow({
+          success: false,
+          failed: false,
+        });
+      }, 2000);
+    }
+  };
+
   const handleCelarTask = () => {
     setIsClearTask(!isClearTask);
   };
 
-  const handleOnChangeInput = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleOnChangeInput = (event: any) => {
     const { name, value } = event.target;
     setTextInput((prevData: any) => ({
       ...prevData,
       [name]: value,
     }));
+  };
+
+  const handleOnCheckBox = async (id: number, status: string) => {
+    const newStatus = status === "active" ? "active" : "completed";
+
+    console.log("Updating todo with:", { id, status: newStatus }); // Debugging line
+
+    await handlePutTodo(id, newStatus);
   };
 
   return (
@@ -143,9 +234,13 @@ export default function Form(props: {
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
           >
             <p className="text-center font-[600] text-[1em]">All</p>
-            <p className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              {filterData.length}
-            </p>
+            <div className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
+              {filterData && filterData.length > 0 ? (
+                <p>{filterData.length}</p>
+              ) : (
+                <p>0</p>
+              )}
+            </div>
           </button>
           <button
             type="button"
@@ -155,9 +250,16 @@ export default function Form(props: {
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
           >
             <p className="text-center font-[600] text-[1em]">Active</p>
-            <p className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              {filterData.filter((item) => item.status === "active").length}
-            </p>
+            <div className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
+              {filterData && filterData.length > 0 ? (
+                <p>
+                  {/* Count items where status is "active" */}
+                  {filterData.filter((item) => item.status === "active").length}
+                </p>
+              ) : (
+                <p>0</p>
+              )}
+            </div>
           </button>
           <button
             type="button"
@@ -167,9 +269,19 @@ export default function Form(props: {
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
           >
             <p className="text-center font-[600] text-[1em]">Completed</p>
-            <p className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              {filterData.filter((item) => item.status === "completed").length}
-            </p>
+            <div className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
+              {filterData && filterData.length > 0 ? (
+                <p>
+                  {/* Count items where status is "active" */}
+                  {
+                    filterData.filter((item) => item.status === "completed")
+                      .length
+                  }
+                </p>
+              ) : (
+                <p>0</p>
+              )}
+            </div>
           </button>
         </div>
 
@@ -196,7 +308,10 @@ export default function Form(props: {
             >
               Add Task
             </button>
-            <button type="button" className="text-[0.85em] text-black font-[500]">
+            <button
+              type="button"
+              className="text-[0.85em] text-black font-[500]"
+            >
               Clear Completed
             </button>
           </div>
@@ -204,7 +319,7 @@ export default function Form(props: {
 
         {!props.isAuthenticated && <LockSign onClick={props.onClick} />}
         {props.isAuthenticated && (
-          <SuccSign data={filterData} setData={setFilterData} />
+          <SuccSign data={dataFilterTodo} setData={handleOnCheckBox} />
         )}
       </div>
 
