@@ -2,7 +2,7 @@ import prisma from "@/@utils/prisma";
 import { ethers } from "ethers";
 import { NextResponse } from "next/server";
 
-export default async function AuthHandler(req: Request) {
+export default async function Page(req: Request) {
   console.log("PPPP")
   if (req.method === "POST") {
     try {

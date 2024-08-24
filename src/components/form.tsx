@@ -8,34 +8,6 @@ import { DataTodo, TaskActive, ToastShow } from "@/@entity/TodoList";
 import LockSign from "./manage/lockSign";
 import SuccSign from "./manage/succSign";
 
-const mockData: DataTodo[] = [
-  {
-    title: "new",
-    status: "active",
-    createdAt: "12 Jan",
-  },
-  {
-    title: "new",
-    status: "completed",
-    createdAt: "12 Jan",
-  },
-  {
-    title: "new",
-    status: "active",
-    createdAt: "12 Jan",
-  },
-  {
-    title: "new",
-    status: "active",
-    createdAt: "12 Jan",
-  },
-  {
-    title: "new",
-    status: "completed",
-    createdAt: "12 Jan",
-  },
-];
-
 interface InputList {
   task: string;
   status: string;
@@ -62,7 +34,7 @@ export default function Form(props: {
     status: "",
   });
 
-  const [filterData, setFilterData] = useState<DataTodo[]>(mockData);
+  const [filterData, setFilterData] = useState<DataTodo[]>([]);
 
   const handleTaskActive = (key: "all" | "active" | "completed") => {
     setIsTaskActive({
@@ -74,11 +46,11 @@ export default function Form(props: {
 
   useEffect(() => {
     if (isTaskActive.all) {
-      setFilterData(mockData);
+      setFilterData(filterData);
     } else if (isTaskActive.active) {
-      setFilterData(mockData.filter((item) => item.status === "active"));
+      setFilterData(filterData.filter((item) => item.status === "active"));
     } else if (isTaskActive.completed) {
-      setFilterData(mockData.filter((item) => item.status === "completed"));
+      setFilterData(filterData.filter((item) => item.status === "completed"));
     }
   }, [isTaskActive]);
 
@@ -94,8 +66,17 @@ export default function Form(props: {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    textInput.status = "Active";
-    console.log(textInput, "text");
+
+    const newTask: DataTodo = {
+      title: textInput.task,
+      status: "active",
+      createdAt: new Date().toLocaleDateString("en-US", {
+        day: "2-digit",
+        month: "short",
+      }),
+    };
+
+    setFilterData((prevData) => [...prevData, newTask]);
 
     setTextInput({
       task: "",
@@ -131,7 +112,7 @@ export default function Form(props: {
           >
             <p className="text-center font-[600] text-[1em]">All</p>
             <p className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              {mockData.length}
+              {filterData.length}
             </p>
           </button>
           <button
@@ -143,7 +124,7 @@ export default function Form(props: {
           >
             <p className="text-center font-[600] text-[1em]">Active</p>
             <p className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              {mockData.filter((item) => item.status === "active").length}
+              {filterData.filter((item) => item.status === "active").length}
             </p>
           </button>
           <button
@@ -155,7 +136,7 @@ export default function Form(props: {
           >
             <p className="text-center font-[600] text-[1em]">Completed</p>
             <p className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              {mockData.filter((item) => item.status === "completed").length}
+              {filterData.filter((item) => item.status === "completed").length}
             </p>
           </button>
         </div>
