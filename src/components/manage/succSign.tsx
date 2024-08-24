@@ -27,7 +27,7 @@ export default function SuccSign(props: {
           {props.data.map((item: DataTodo, index: number) => (
             <div key={index} className="bg-white p-5 my-5 rounded-lg">
               <div className="flex flex-row items-center gap-[0.8em]">
-                <div className="flex flex-col items-center">
+                <div className="mt-[-2.8em]">
                   <label className={styles.customCheckbox}>
                     <input
                       type="checkbox"
@@ -38,7 +38,6 @@ export default function SuccSign(props: {
                     />
                     <span className={styles.checkmark}></span>
                   </label>
-                  <input type="checkbox" className="invisible h-4" />
                 </div>
                 <div className="flex flex-col">
                   <p className="text-[1em] font-[600]">{item.title}</p>
