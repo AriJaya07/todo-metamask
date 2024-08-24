@@ -1,13 +1,40 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-import Sign from "./manage/sign";
 import ClearTask from "./manage/clearTask";
 import ToastSucc from "./manage/toastSucc";
 import ToastFailed from "./manage/toastFailed";
-import { TaskActive, ToastShow } from "@/@entity/TodoList";
+import { DataTodo, TaskActive, ToastShow } from "@/@entity/TodoList";
 import LockSign from "./manage/lockSign";
 import SuccSign from "./manage/succSign";
+
+const mockData: DataTodo[] = [
+  {
+    title: "new",
+    status: "active",
+    createdAt: "12 Jan",
+  },
+  {
+    title: "new",
+    status: "completed",
+    createdAt: "12 Jan",
+  },
+  {
+    title: "new",
+    status: "active",
+    createdAt: "12 Jan",
+  },
+  {
+    title: "new",
+    status: "active",
+    createdAt: "12 Jan",
+  },
+  {
+    title: "new",
+    status: "completed",
+    createdAt: "12 Jan",
+  },
+];
 
 interface InputList {
   task: string;
@@ -23,15 +50,19 @@ export default function Form(props: {
     active: false,
     completed: false,
   });
+
   const [isToastShow, setIsToastShow] = useState<ToastShow>({
     success: false,
     failed: false,
   });
+
   const [isClearTask, setIsClearTask] = useState<boolean>(false);
   const [textInput, setTextInput] = useState<InputList>({
     task: "",
     status: "",
   });
+
+  const [filterData, setFilterData] = useState<DataTodo[]>(mockData);
 
   const handleTaskActive = (key: "all" | "active" | "completed") => {
     setIsTaskActive({
@@ -40,6 +71,16 @@ export default function Form(props: {
       completed: key === "completed",
     });
   };
+
+  useEffect(() => {
+    if (isTaskActive.all) {
+      setFilterData(mockData);
+    } else if (isTaskActive.active) {
+      setFilterData(mockData.filter((item) => item.status === "active"));
+    } else if (isTaskActive.completed) {
+      setFilterData(mockData.filter((item) => item.status === "completed"));
+    }
+  }, [isTaskActive]);
 
   useEffect(() => {
     if (props.isAuthenticated) {
@@ -90,7 +131,7 @@ export default function Form(props: {
           >
             <p className="text-center font-[600] text-[1em]">All</p>
             <p className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              0
+              {mockData.length}
             </p>
           </button>
           <button
@@ -102,7 +143,7 @@ export default function Form(props: {
           >
             <p className="text-center font-[600] text-[1em]">Active</p>
             <p className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              0
+              {mockData.filter((item) => item.status === "active").length}
             </p>
           </button>
           <button
@@ -114,7 +155,7 @@ export default function Form(props: {
           >
             <p className="text-center font-[600] text-[1em]">Completed</p>
             <p className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
-              0
+              {mockData.filter((item) => item.status === "completed").length}
             </p>
           </button>
         </div>
@@ -144,7 +185,9 @@ export default function Form(props: {
         </form>
 
         {!props.isAuthenticated && <LockSign onClick={props.onCLick} />}
-        {props.isAuthenticated && <SuccSign status={isTaskActive} />}
+        {props.isAuthenticated && (
+          <SuccSign data={filterData} setData={setFilterData} />
+        )}
       </div>
 
       {isClearTask && <ClearTask onCLick={handleCelarTask} />}

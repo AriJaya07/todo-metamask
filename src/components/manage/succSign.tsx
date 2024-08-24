@@ -1,68 +1,39 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { DataTodo } from "@/@entity/TodoList";
 
-interface DataTest {
-  title: string;
-  status: string;
-  createdAt: string;
-}
-
-const mockData: DataTest[] = [
-  {
-    title: "new",
-    status: "active",
-    createdAt: "12 Jan",
-  },
-  {
-    title: "new",
-    status: "completed",
-    createdAt: "12 Jan",
-  },
-  {
-    title: "new",
-    status: "active",
-    createdAt: "12 Jan",
-  },
-  {
-    title: "new",
-    status: "active",
-    createdAt: "12 Jan",
-  },
-  {
-    title: "new",
-    status: "completed",
-    createdAt: "12 Jan",
-  },
-];
-
-export default function SuccSign(props: { status: any }): JSX.Element {
-  const [checkboxState, setCheckboxState] = useState<string[]>(
-    mockData.map((item) => item.status)
-  );
-
+export default function SuccSign(props: {
+  data: DataTodo[];
+  setData: any;
+}): JSX.Element {
+    
   const handleOnCheckBox = (index: number) => {
-    setCheckboxState((prevState) =>
-      prevState.map((state, i) =>
-        i === index ? (state === "active" ? "completed" : "active") : state
+    props.setData((prevState: DataTodo[]) =>
+      prevState.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              status: item.status === "active" ? "completed" : "active",
+            }
+          : item
       )
     );
   };
 
   return (
     <div className="">
-      {mockData.length > 0 ? (
+      {props.data.length > 0 ? (
         <div className="">
-          {mockData.map((item: DataTest, index: number) => (
+          {props.data.map((item: DataTodo, index: number) => (
             <div key={index} className="bg-white p-5 my-5 rounded-lg">
               <div className="flex flex-row items-center gap-[0.8em]">
                 <div className="flex flex-col">
                   <input
                     type="checkbox"
                     name="status"
-                    checked={checkboxState[index] === "completed"}
+                    checked={item.status === "completed"}
                     onChange={() => handleOnCheckBox(index)}
-                    className=""
+                    className="cursor-pointer"
                   />
                   <input type="checkbox" className="invisible h-4" />
                 </div>

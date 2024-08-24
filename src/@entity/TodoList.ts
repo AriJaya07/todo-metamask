@@ -16,3 +16,9 @@ export interface TaskActive {
     success: boolean;
     failed: boolean;
   }
+
+  export interface DataTodo {
+    title: string;
+    status: string;
+    createdAt: string;
+  }
