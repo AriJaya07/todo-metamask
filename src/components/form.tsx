@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import Sign from "./manage/sign";
 import ClearTask from "./manage/clearTask";
 import ToastSucc from "./manage/toastSucc";
@@ -41,15 +41,25 @@ export default function Form(props: {
     });
   };
 
+  useEffect(() => {
+    if (props.isAuthenticated) {
+      setIsTaskActive({
+        all: true,
+        active: false,
+        completed: false,
+      });
+    }
+  }, [props.isAuthenticated]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     textInput.status = "Active";
-     console.log(textInput, "text");
-    
-     setTextInput({
+    console.log(textInput, "text");
+
+    setTextInput({
       task: "",
-      status: ""
-     })
+      status: "",
+    });
   };
 
   const handleCelarTask = () => {
@@ -134,7 +144,7 @@ export default function Form(props: {
         </form>
 
         {!props.isAuthenticated && <LockSign onClick={props.onCLick} />}
-        {props.isAuthenticated && <SuccSign />}
+        {props.isAuthenticated && <SuccSign status={isTaskActive} />}
       </div>
 
       {isClearTask && <ClearTask onCLick={handleCelarTask} />}
