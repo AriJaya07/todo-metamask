@@ -66,15 +66,23 @@ const TodoComp: React.FC = () => {
     }
   };
 
+  const handleLogout = () => {
+    try {
+      logout();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleSignPopup = () => {
     setIsSign(!isSignIn);
   };
 
   return (
     <div className="bg-[#ebebec] md:h-screen h-full">
-      <Header onClick={handleSignPopup} address={address} />
+      <Header onClick={handleSignPopup} logout={handleLogout} address={address} />
       <div className="2xl:p-[5em] p-[2em]">
-        <Form onCLick={handleSignPopup} isAuthenticated={isAuthenticated} />
+        <Form onClick={handleSignPopup}  isAuthenticated={isAuthenticated} />
       </div>
 
       {isSignIn && (

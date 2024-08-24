@@ -15,7 +15,7 @@ interface InputList {
 }
 
 export default function Form(props: {
-  onCLick(): void;
+  onClick(): void;
   isAuthenticated: boolean;
 }): JSX.Element {
   const [isTaskActive, setIsTaskActive] = useState<TaskActive>({
@@ -184,11 +184,11 @@ export default function Form(props: {
               value={textInput.task}
               onChange={handleOnChangeInput}
               placeholder="Add new tasks..."
-              className="bg-white p-3.5 rounded-lg w-full"
+              className="bg-white p-3 rounded-lg w-full"
               disabled={!props.isAuthenticated}
             />
           </div>
-          <div className="md:w-1/5 w-full">
+          <div className="flex flex-col items-center gap-[0.5em] md:w-1/5 w-full">
             <button
               type="submit"
               disabled={!props.isAuthenticated}
@@ -196,10 +196,13 @@ export default function Form(props: {
             >
               Add Task
             </button>
+            <button type="button" className="text-[0.85em] text-black font-[500]">
+              Clear Completed
+            </button>
           </div>
         </form>
 
-        {!props.isAuthenticated && <LockSign onClick={props.onCLick} />}
+        {!props.isAuthenticated && <LockSign onClick={props.onClick} />}
         {props.isAuthenticated && (
           <SuccSign data={filterData} setData={setFilterData} />
         )}
