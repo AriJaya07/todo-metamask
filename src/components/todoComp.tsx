@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import Form from "./form";
 import Header from "./manage/header";
 import Sign from "./manage/sign";
-
-import { connectMetaMask, signMessage } from "@/@utils/auth";
-import { ToastShow } from "@/@entity/TodoList";
 import ToastSucc from "./manage/toastSucc";
 import ToastFailed from "./manage/toastFailed";
 import { useAuth } from "./authContext";
+import { ToastShow } from "@/@entity/TodoList";
+import { connectMetaMask, signMessage } from "@/@utils/auth";
 
 const TodoComp: React.FC = () => {
   const { address, isAuthenticated, login, logout } = useAuth();

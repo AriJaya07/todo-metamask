@@ -1,14 +1,13 @@
-"use client";
-
-import { DataTodo } from "@/@entity/TodoList";
 import moment from "moment";
 
+import { DataTodo } from "@/@entity/TodoList";
 import styles from "../todos.module.css";
 
 export default function SuccSign(props: {
   data: DataTodo[];
   setData: (id: number, status: string) => void;
 }): JSX.Element {
+
   const handleOnCheckBox = (id?: number) => {
     if (id) {
       const updatedTodo = props.data.find((todo) => todo.id === id);

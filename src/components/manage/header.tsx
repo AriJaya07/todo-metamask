@@ -1,5 +1,3 @@
-"use client";
-
 export default function Header(props: {
   onClick(): void;
   logout(): void;
