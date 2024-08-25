@@ -37,6 +37,8 @@ export default function Form(props: {
     status: "",
   });
 
+  const [textToast, setTextToast] = useState<string[]>(["", ""]);
+
   const { data: filterData = [], refetch } = useQuery(
     "todos",
     async () => {
@@ -73,11 +75,19 @@ export default function Form(props: {
     {
       onSuccess: () => {
         refetch();
-        setIsToastShow({ success: true, failed: false });
         setTextInput({ task: "", status: "" });
+        setIsToastShow({ success: true, failed: false });
+        setTextToast([
+          "Create Task Successfully",
+          "All Done! Your task was successfully created",
+        ]);
       },
       onError: () => {
         setIsToastShow({ success: false, failed: true });
+        setTextToast([
+          "Error Creating Task",
+          "Oops! Something went wrong. Unable to create task.",
+        ]);
       },
     }
   );
@@ -92,9 +102,17 @@ export default function Form(props: {
       onSuccess: () => {
         refetch();
         setIsToastShow({ success: true, failed: false });
+        setTextToast([
+          "Update Task Successfully",
+          "All Done! Your task was successfully updated",
+        ]);
       },
       onError: () => {
         setIsToastShow({ success: false, failed: true });
+        setTextToast([
+          "Error Creating Task",
+          "Oops! Something went wrong. Unable to update task.",
+        ]);
       },
     }
   );
@@ -115,10 +133,18 @@ export default function Form(props: {
       onSuccess: () => {
         setIsClearTask(false);
         props.logout();
-        localStorage.removeItem("user");
+        setIsToastShow({ success: true, failed: false });
+        setTextToast([
+          "Delete User Successfully",
+          "All Done! Your user was successfully delete",
+        ]);
       },
       onError: () => {
-        console.error("internal server error");
+        setIsToastShow({ success: false, failed: true });
+        setTextToast([
+          "Error Delete User",
+          "Oops! Something went wrong. Unable to delete user.",
+        ]);
       },
     }
   );
@@ -219,6 +245,13 @@ export default function Form(props: {
       MutationDeleteAll.mutate();
     } catch (e) {
       console.error(e);
+    } finally {
+      setTimeout(() => {
+        setIsToastShow({
+          success: false,
+          failed: false,
+        });
+      }, 2000);
     }
   };
 
@@ -418,12 +451,12 @@ export default function Form(props: {
       )}
       {isToastShow.success && (
         <div className="fixed bottom-10 md:right-7 z-[10]">
-          <ToastSucc />
+          <ToastSucc message={textToast} />
         </div>
       )}
       {isToastShow.failed && (
         <div className="fixed bottom-10 md:right-7 z-[10]">
-          <ToastFailed />
+          <ToastFailed message={textToast} />
         </div>
       )}
     </div>

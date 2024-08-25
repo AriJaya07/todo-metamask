@@ -21,6 +21,8 @@ const TodoComp: React.FC = () => {
     failed: false,
   });
 
+  const [textToast, setTextToast] = useState<string[]>(["", ""]);
+
   const handleLogin = async () => {
     const addr = await connectMetaMask();
     if (addr) {
@@ -29,10 +31,28 @@ const TodoComp: React.FC = () => {
       if (signature) {
         try {
           await login(address, signature);
-
           setIsSign(false);
+
+          setIsToastShow({ success: true, failed: false });
+          setTextToast([
+            "Login User Successfully",
+            "All Done! Your user was successfully login",
+          ]);
         } catch (error) {
           console.error("Error during Axios request:", error);
+
+          setIsToastShow({ success: false, failed: true });
+          setTextToast([
+            "Error Login User",
+            "Oops! Something went wrong. Unable to login user.",
+          ]);
+        } finally {
+          setTimeout(() => {
+            setIsToastShow({
+              success: false,
+              failed: false,
+            });
+          }, 2000);
         }
       }
     }
@@ -41,8 +61,27 @@ const TodoComp: React.FC = () => {
   const handleLogout = () => {
     try {
       logout();
+
+      setIsToastShow({ success: true, failed: false });
+      setTextToast([
+        "Logout User Successfully",
+        "All Done! Your account was successfully logout",
+      ]);
     } catch (e) {
       console.error(e);
+
+      setIsToastShow({ success: false, failed: true });
+      setTextToast([
+        "Error Logout User",
+        "Oops! Something went wrong. Unable to logout account.",
+      ]);
+    } finally {
+      setTimeout(() => {
+        setIsToastShow({
+          success: false,
+          failed: false,
+        });
+      }, 2000);
     }
   };
 
@@ -75,12 +114,12 @@ const TodoComp: React.FC = () => {
 
       {isToastShow.success && (
         <div className="fixed bottom-10 right-10 z-[10]">
-          <ToastSucc />
+          <ToastSucc message={textToast} />
         </div>
       )}
       {isToastShow.failed && (
         <div className="fixed bottom-10 right-10 z-[10]">
-          <ToastFailed />
+          <ToastFailed message={textToast} />
         </div>
       )}
     </div>
