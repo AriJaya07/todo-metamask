@@ -49,29 +49,14 @@ export default function Form(props: {
           });
 
           if (response.status === 200) {
-            setIsToastShow({
-              success: true,
-              failed: false,
-            });
             return response.data.todos;
           } else {
-            setIsToastShow({
-              success: false,
-              failed: true,
-            });
             return [];
           }
         }
         return [];
       } catch (error) {
         console.error(error);
-      } finally {
-        setTimeout(() => {
-          setIsToastShow({
-            success: false,
-            failed: false,
-          });
-        }, 2000);
       }
     },
     {
@@ -131,10 +116,9 @@ export default function Form(props: {
         setIsClearTask(false);
         props.logout();
         localStorage.removeItem("user");
-        setIsToastShow({ success: true, failed: false });
       },
       onError: () => {
-        setIsToastShow({ success: false, failed: true });
+        console.error("internal server error");
       },
     }
   );
@@ -235,13 +219,6 @@ export default function Form(props: {
       MutationDeleteAll.mutate();
     } catch (e) {
       console.error(e);
-    } finally {
-      setTimeout(() => {
-        setIsToastShow({
-          success: false,
-          failed: false,
-        });
-      }, 2000);
     }
   };
 

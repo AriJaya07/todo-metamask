@@ -21,22 +21,6 @@ const TodoComp: React.FC = () => {
     failed: false,
   });
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      setIsToastShow({
-        success: true,
-        failed: false,
-      });
-
-      setTimeout(() => {
-        setIsToastShow({
-          success: false,
-          failed: false,
-        });
-      }, 2000);
-    }
-  }, [isAuthenticated]);
-
   const handleLogin = async () => {
     const addr = await connectMetaMask();
     if (addr) {
@@ -49,17 +33,6 @@ const TodoComp: React.FC = () => {
           setIsSign(false);
         } catch (error) {
           console.error("Error during Axios request:", error);
-          setIsToastShow({
-            success: false,
-            failed: true,
-          });
-        } finally {
-          setTimeout(() => {
-            setIsToastShow({
-              success: false,
-              failed: false,
-            });
-          }, 2000);
         }
       }
     }
