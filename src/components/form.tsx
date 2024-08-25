@@ -278,6 +278,7 @@ export default function Form(props: {
                 ? "bg-white"
                 : "bg-[#F4F4F5]"
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
+            disabled={!props.isAuthenticated}
           >
             <p className="text-center font-[600] text-[1em]">All</p>
             <div className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
@@ -296,6 +297,7 @@ export default function Form(props: {
                 ? "bg-white"
                 : "bg-[#F4F4F5]"
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
+            disabled={!props.isAuthenticated}
           >
             <p className="text-center font-[600] text-[1em]">Active</p>
             <div className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
@@ -320,6 +322,7 @@ export default function Form(props: {
                 ? "bg-white"
                 : "bg-[#F4F4F5]"
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
+            disabled={!props.isAuthenticated}
           >
             <p className="text-center font-[600] text-[1em]">Completed</p>
             <div className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
