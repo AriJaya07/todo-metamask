@@ -1,14 +1,12 @@
-import type { Metadata } from "next";
+"use client"
+
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/authContext";
+import { QueryClientProvider } from "react-query";
+import queryClient from "@/@utils/queryClient";
 
 const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Todo Metamask",
-  description: "Generated Todo Metamask",
-};
 
 export default function RootLayout({
   children,
@@ -18,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );

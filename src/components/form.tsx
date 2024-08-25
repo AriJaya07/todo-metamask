@@ -8,6 +8,7 @@ import { DataTodo, TaskActive, ToastShow } from "@/@entity/TodoList";
 import LockSign from "./manage/lockSign";
 import SuccSign from "./manage/succSign";
 import axios from "axios";
+import { useMutation, useQuery } from "react-query";
 
 interface InputList {
   task: string;
@@ -36,7 +37,107 @@ export default function Form(props: {
     status: "",
   });
 
-  const [filterData, setFilterData] = useState<DataTodo[]>([]);
+  const { data: filterData = [], refetch } = useQuery(
+    "todos",
+    async () => {
+      try {
+        const dataLocal = localStorage.getItem("user");
+        if (dataLocal) {
+          const userData = JSON.parse(dataLocal);
+          const response = await axios.get("/api/todos", {
+            params: { userId: userData.user.id },
+          });
+
+          if (response.status === 200) {
+            setIsToastShow({
+              success: true,
+              failed: false,
+            });
+            return response.data.todos;
+          } else {
+            setIsToastShow({
+              success: false,
+              failed: true,
+            });
+            return [];
+          }
+        }
+        return [];
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setTimeout(() => {
+          setIsToastShow({
+            success: false,
+            failed: false,
+          });
+        }, 2000);
+      }
+    },
+    {
+      enabled: props.isAuthenticated,
+    }
+  );
+
+  // Mutation to add a task
+  const MutationAddTask = useMutation(
+    async (newTask: DataTodo) => {
+      const response = await axios.post("/api/todos", newTask);
+      return response.data;
+    },
+    {
+      onSuccess: () => {
+        refetch();
+        setIsToastShow({ success: true, failed: false });
+        setTextInput({ task: "", status: "" });
+      },
+      onError: () => {
+        setIsToastShow({ success: false, failed: true });
+      },
+    }
+  );
+
+  // Mutation to update a task
+  const MutationUpdateTask = useMutation(
+    async ({ id, status }: { id: number; status: string }) => {
+      const response = await axios.put("/api/todos", { id, status });
+      return response.data;
+    },
+    {
+      onSuccess: () => {
+        refetch();
+        setIsToastShow({ success: true, failed: false });
+      },
+      onError: () => {
+        setIsToastShow({ success: false, failed: true });
+      },
+    }
+  );
+
+  // Mutation to delete all tasks
+  const MutationDeleteAll = useMutation(
+    async () => {
+      const dataLocal = localStorage.getItem("user");
+      if (dataLocal) {
+        const userData = JSON.parse(dataLocal);
+        const response = await axios.delete("/api/todos", {
+          params: { userId: userData.user.id },
+        });
+        return response.data;
+      }
+    },
+    {
+      onSuccess: () => {
+        setIsClearTask(false);
+        props.logout();
+        localStorage.removeItem("user");
+        setIsToastShow({ success: true, failed: false });
+      },
+      onError: () => {
+        setIsToastShow({ success: false, failed: true });
+      },
+    }
+  );
 
   const handleTaskActive = (key: "all" | "active" | "completed") => {
     setIsTaskActive({
@@ -50,18 +151,12 @@ export default function Form(props: {
     if (isTaskActive.all) {
       return filterData;
     } else if (isTaskActive.active) {
-      return filterData.filter((item) => item.status === "active");
+      return filterData.filter((item: DataTodo) => item.status === "active");
     } else if (isTaskActive.completed) {
-      return filterData.filter((item) => item.status === "completed");
+      return filterData.filter((item: DataTodo) => item.status === "completed");
     }
-    return filterData; // Default case
+    return filterData;
   }, [filterData, isTaskActive]);
-
-  useEffect(() => {
-    if (props.isAuthenticated) {
-      handleGetTodo();
-    }
-  }, [props.isAuthenticated]);
 
   useEffect(() => {
     if (props.isAuthenticated) {
@@ -72,43 +167,6 @@ export default function Form(props: {
       });
     }
   }, [props.isAuthenticated]);
-
-  const handleGetTodo = async () => {
-    const dataLocal = localStorage.getItem("user");
-    let userId: number = 0;
-
-    if (dataLocal) {
-      const userData = JSON.parse(dataLocal);
-      userId = userData.user.id;
-    }
-
-    try {
-      const response = await axios.get("/api/todos", { params: { userId } });
-
-      if (response.status === 200) {
-        setFilterData(response.data.todos);
-        setIsToastShow({
-          success: true,
-          failed: false,
-        });
-      } else {
-        setFilterData([]);
-        setIsToastShow({
-          success: false,
-          failed: true,
-        });
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setTimeout(() => {
-        setIsToastShow({
-          success: false,
-          failed: false,
-        });
-      }, 2000);
-    }
-  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -124,27 +182,20 @@ export default function Form(props: {
     const newTask: DataTodo = {
       userId: userId,
       title: textInput.task,
-      status: "active",
+      status: isTaskActive.all
+        ? "active"
+        : isTaskActive.active
+        ? "active"
+        : isTaskActive.completed
+        ? "completed"
+        : "active",
       createdAt: new Date().toISOString(),
     };
 
     try {
-      const response = await axios.post("/api/todos", newTask);
-
-      if (response.status === 200) {
-        setIsToastShow({
-          success: true,
-          failed: false,
-        });
-        await handleGetTodo();
-      } else {
-        setIsToastShow({
-          success: false,
-          failed: true,
-        });
-      }
-    } catch (e) {
-      console.error(e);
+      MutationAddTask.mutate(newTask);
+    } catch (error) {
+      console.log(error);
     } finally {
       setTimeout(() => {
         setIsToastShow({
@@ -161,23 +212,12 @@ export default function Form(props: {
   };
 
   const handlePutTodo = async (id: number, status: string) => {
-    try {
-      const response = await axios.put("/api/todos", { id, status });
+    const newStatus = status === "active" ? "active" : "completed";
 
-      if (response.status === 200) {
-        setIsToastShow({
-          success: true,
-          failed: false,
-        });
-        await handleGetTodo();
-      } else {
-        setIsToastShow({
-          success: false,
-          failed: true,
-        });
-      }
-    } catch (e) {
-      console.error(e);
+    try {
+      MutationUpdateTask.mutate({ id, status: newStatus });
+    } catch (error) {
+      console.error(error);
     } finally {
       setTimeout(() => {
         setIsToastShow({
@@ -189,40 +229,19 @@ export default function Form(props: {
   };
 
   const handleDeleteAll = async () => {
-    const dataLocal = localStorage.getItem("user");
-    let userId: number = 0;
+    setIsClearTask(true);
 
-    if (dataLocal) {
-      const userData = JSON.parse(dataLocal);
-      userId = userData.user.id;
-    }
     try {
-      const response = await axios.delete("/api/todos", { params: { userId } });
-
-      setIsClearTask(true);
-      if (response.status === 200) {
-        props.logout();
-        localStorage.removeItem("user");
-
-        setIsClearTask(false);
-
-        setIsToastShow({
-          success: true,
-          failed: false,
-        });
-      } else {
-        setIsToastShow({
-          success: false,
-          failed: true,
-        });
-      }
+      MutationDeleteAll.mutate();
     } catch (e) {
       console.error(e);
     } finally {
-      setIsToastShow({
-        success: false,
-        failed: false,
-      });
+      setTimeout(() => {
+        setIsToastShow({
+          success: false,
+          failed: false,
+        });
+      }, 2000);
     }
   };
 
@@ -241,8 +260,6 @@ export default function Form(props: {
   const handleOnCheckBox = async (id: number, status: string) => {
     const newStatus = status === "active" ? "active" : "completed";
 
-    console.log("Updating todo with:", { id, status: newStatus }); // Debugging line
-
     await handlePutTodo(id, newStatus);
   };
 
@@ -257,7 +274,9 @@ export default function Form(props: {
             type="button"
             onClick={() => handleTaskActive("all")}
             className={`${
-              isTaskActive.all ? "bg-white" : "bg-[#F4F4F5]"
+              props.isAuthenticated && isTaskActive.all
+                ? "bg-white"
+                : "bg-[#F4F4F5]"
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
           >
             <p className="text-center font-[600] text-[1em]">All</p>
@@ -273,14 +292,20 @@ export default function Form(props: {
             type="button"
             onClick={() => handleTaskActive("active")}
             className={`${
-              isTaskActive.active ? "bg-white" : "bg-[#F4F4F5]"
+              props.isAuthenticated && isTaskActive.active
+                ? "bg-white"
+                : "bg-[#F4F4F5]"
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
           >
             <p className="text-center font-[600] text-[1em]">Active</p>
             <div className="border border-gray-300 px-2 rounded-xl font-[600] text-[1em]">
               {props.isAuthenticated && filterData && filterData.length > 0 ? (
                 <p>
-                  {filterData.filter((item) => item.status === "active").length}
+                  {
+                    filterData.filter(
+                      (item: DataTodo) => item.status === "active"
+                    ).length
+                  }
                 </p>
               ) : (
                 <p>0</p>
@@ -291,7 +316,9 @@ export default function Form(props: {
             type="button"
             onClick={() => handleTaskActive("completed")}
             className={`${
-              isTaskActive.completed ? "bg-white" : "bg-[#F4F4F5]"
+              props.isAuthenticated && isTaskActive.completed
+                ? "bg-white"
+                : "bg-[#F4F4F5]"
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
           >
             <p className="text-center font-[600] text-[1em]">Completed</p>
@@ -300,8 +327,9 @@ export default function Form(props: {
                 <p>
                   {/* Count items where status is "active" */}
                   {
-                    filterData.filter((item) => item.status === "completed")
-                      .length
+                    filterData.filter(
+                      (item: DataTodo) => item.status === "completed"
+                    ).length
                   }
                 </p>
               ) : (
@@ -312,7 +340,8 @@ export default function Form(props: {
         </div>
 
         <form
-          onSubmit={handleSubmit} autoComplete="off"
+          onSubmit={handleSubmit}
+          autoComplete="off"
           className="flex md:flex-row flex-col gap-[1em] w-full py-5"
         >
           <div className="w-full">
@@ -325,6 +354,7 @@ export default function Form(props: {
                 placeholder="Add new tasks..."
                 className="bg-white p-3 rounded-lg w-full focus:outline-none"
                 disabled={!props.isAuthenticated}
+                required
               />
               <div className="w-full">
                 {props.isAuthenticated &&
@@ -337,7 +367,7 @@ export default function Form(props: {
                         <p className="bg-black px-2.5 py-0.5 rounded-xl text-[0.75em] font-[500] text-white">
                           {
                             filterData.filter(
-                              (item) => item.status === "active"
+                              (item: DataTodo) => item.status === "active"
                             ).length
                           }
                         </p>
@@ -348,7 +378,7 @@ export default function Form(props: {
                         <p className="bg-black px-2.5 py-0.5 rounded-xl text-[0.75em] font-[500] text-white">
                           {
                             filterData.filter(
-                              (item) => item.status === "active"
+                              (item: DataTodo) => item.status === "active"
                             ).length
                           }
                         </p>
@@ -359,7 +389,7 @@ export default function Form(props: {
                         <p className="bg-black px-2.5 py-0.5 rounded-xl text-[0.75em] font-[500] text-white">
                           {
                             filterData.filter(
-                              (item) => item.status === "completed"
+                              (item: DataTodo) => item.status === "completed"
                             ).length
                           }
                         </p>
@@ -404,7 +434,7 @@ export default function Form(props: {
       </div>
 
       {isClearTask && (
-        <ClearTask onCLick={handleCelarTask} clearTask={handleDeleteAll} />
+        <ClearTask onClick={handleCelarTask} onDeleteAll={handleDeleteAll} />
       )}
       {isToastShow.success && (
         <div className="fixed bottom-10 md:right-7 z-[10]">

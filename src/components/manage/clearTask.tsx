@@ -1,6 +1,6 @@
 export default function ClearTask(props: {
-  onCLick(): void;
-  clearTask(): void;
+  onClick(): void;
+  onDeleteAll(): void;
 }): JSX.Element {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -17,14 +17,14 @@ export default function ClearTask(props: {
         <div className="flex justify-end gap-[1em] py-2">
           <button
             type="button"
-            onClick={props.onCLick}
+            onClick={props.onClick}
             className="bg-white rounded-lg border border-gray-300 px-5 py-2 font-[500]"
           >
             Cancel
           </button>
           <button
             type="button"
-            onClick={props.clearTask}
+            onClick={props.onDeleteAll}
             className="bg-black px-5 py-2 font-[500] text-white rounded-lg"
           >
             Continue
