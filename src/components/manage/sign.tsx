@@ -1,5 +1,3 @@
-"use client";
-
 export default function Sign(props: {
   onClick(): void;
   handleLogin: any;

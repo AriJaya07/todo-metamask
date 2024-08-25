@@ -1,25 +1,24 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery } from "react-query";
+import { useForm } from "react-hook-form";
+import axios from "axios";
+
 import ClearTask from "./manage/clearTask";
 import ToastSucc from "./manage/toastSucc";
 import ToastFailed from "./manage/toastFailed";
-import { DataTodo, TaskActive, ToastShow } from "@/@entity/TodoList";
 import LockSign from "./manage/lockSign";
 import SuccSign from "./manage/succSign";
-import axios from "axios";
-import { useMutation, useQuery } from "react-query";
-
-interface InputList {
-  task: string;
-  status: string;
-}
+import { DataTodo, TaskActive, ToastShow } from "@/@entity/TodoList";
 
 export default function Form(props: {
   onClick(): void;
   isAuthenticated: boolean;
   logout(): void;
 }): JSX.Element {
+  const { register, handleSubmit, reset } = useForm();
+
   const [isTaskActive, setIsTaskActive] = useState<TaskActive>({
     all: false,
     active: false,
@@ -32,11 +31,6 @@ export default function Form(props: {
   });
 
   const [isClearTask, setIsClearTask] = useState<boolean>(false);
-  const [textInput, setTextInput] = useState<InputList>({
-    task: "",
-    status: "",
-  });
-
   const [textToast, setTextToast] = useState<string[]>(["", ""]);
 
   const { data: filterData = [], refetch } = useQuery(
@@ -75,7 +69,6 @@ export default function Form(props: {
     {
       onSuccess: () => {
         refetch();
-        setTextInput({ task: "", status: "" });
         setIsToastShow({ success: true, failed: false });
         setTextToast([
           "Create Task Successfully",
@@ -178,9 +171,7 @@ export default function Form(props: {
     }
   }, [props.isAuthenticated]);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = async (data: any) => {
     const dataLocal = localStorage.getItem("user");
     let userId: number = 0;
 
@@ -191,7 +182,7 @@ export default function Form(props: {
 
     const newTask: DataTodo = {
       userId: userId,
-      title: textInput.task,
+      title: data.task,
       status: isTaskActive.all
         ? "active"
         : isTaskActive.active
@@ -215,10 +206,7 @@ export default function Form(props: {
       }, 2000);
     }
 
-    setTextInput({
-      task: "",
-      status: "",
-    });
+    reset({ task: "" });
   };
 
   const handlePutTodo = async (id: number, status: string) => {
@@ -257,14 +245,6 @@ export default function Form(props: {
 
   const handleCelarTask = () => {
     setIsClearTask(!isClearTask);
-  };
-
-  const handleOnChangeInput = (event: any) => {
-    const { name, value } = event.target;
-    setTextInput((prevData: any) => ({
-      ...prevData,
-      [name]: value,
-    }));
   };
 
   const handleOnCheckBox = async (id: number, status: string) => {
@@ -353,7 +333,7 @@ export default function Form(props: {
         </div>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           autoComplete="off"
           className="flex md:flex-row flex-col gap-[1em] w-full py-5"
         >
@@ -361,9 +341,7 @@ export default function Form(props: {
             <div className="flex md:flex-col flex-col-reverse gap-[1em]">
               <input
                 type="text"
-                name="task"
-                value={textInput.task}
-                onChange={handleOnChangeInput}
+                {...register("task", { required: true })}
                 placeholder="Add new tasks..."
                 className="bg-white p-3 rounded-lg w-full focus:outline-none"
                 disabled={!props.isAuthenticated}
