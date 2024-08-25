@@ -18,7 +18,7 @@ export async function POST(req: Request) {
       // If the user doesn't exist, create a new one
       if (!user) {
         user = await prisma.user.create({
-          data: { address: verivyAddress },
+          data: { address: verivyAddress, signature: signature },
         });
       }
 

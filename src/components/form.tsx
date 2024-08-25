@@ -182,7 +182,13 @@ export default function Form(props: {
     const newTask: DataTodo = {
       userId: userId,
       title: textInput.task,
-      status: "active",
+      status: isTaskActive.all
+        ? "active"
+        : isTaskActive.active
+        ? "active"
+        : isTaskActive.completed
+        ? "completed"
+        : "active",
       createdAt: new Date().toISOString(),
     };
 
@@ -230,10 +236,12 @@ export default function Form(props: {
     } catch (e) {
       console.error(e);
     } finally {
-      setIsToastShow({
-        success: false,
-        failed: false,
-      });
+      setTimeout(() => {
+        setIsToastShow({
+          success: false,
+          failed: false,
+        });
+      }, 2000);
     }
   };
 
@@ -266,7 +274,9 @@ export default function Form(props: {
             type="button"
             onClick={() => handleTaskActive("all")}
             className={`${
-              isTaskActive.all ? "bg-white" : "bg-[#F4F4F5]"
+              props.isAuthenticated && isTaskActive.all
+                ? "bg-white"
+                : "bg-[#F4F4F5]"
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
           >
             <p className="text-center font-[600] text-[1em]">All</p>
@@ -282,7 +292,9 @@ export default function Form(props: {
             type="button"
             onClick={() => handleTaskActive("active")}
             className={`${
-              isTaskActive.active ? "bg-white" : "bg-[#F4F4F5]"
+              props.isAuthenticated && isTaskActive.active
+                ? "bg-white"
+                : "bg-[#F4F4F5]"
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
           >
             <p className="text-center font-[600] text-[1em]">Active</p>
@@ -304,7 +316,9 @@ export default function Form(props: {
             type="button"
             onClick={() => handleTaskActive("completed")}
             className={`${
-              isTaskActive.completed ? "bg-white" : "bg-[#F4F4F5]"
+              props.isAuthenticated && isTaskActive.completed
+                ? "bg-white"
+                : "bg-[#F4F4F5]"
             } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
           >
             <p className="text-center font-[600] text-[1em]">Completed</p>
@@ -340,6 +354,7 @@ export default function Form(props: {
                 placeholder="Add new tasks..."
                 className="bg-white p-3 rounded-lg w-full focus:outline-none"
                 disabled={!props.isAuthenticated}
+                required
               />
               <div className="w-full">
                 {props.isAuthenticated &&
