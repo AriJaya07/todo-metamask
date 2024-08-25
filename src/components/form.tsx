@@ -325,7 +325,7 @@ export default function Form(props: {
           className="flex md:flex-row flex-col gap-[1em] w-full py-5"
         >
           <div className="w-full">
-            <div className="flex flex-col gap-[1em]">
+            <div className="flex md:flex-col flex-col-reverse gap-[1em]">
               <input
                 type="text"
                 name="task"
