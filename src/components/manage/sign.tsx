@@ -18,7 +18,7 @@ export default function Sign(props: {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div className="fixed z-[20] inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div className="bg-white px-10 py-6 rounded-lg shadow-md md:w-1/2 w-5/6 flex flex-col justify-center">
         <div className="flex justify-end">
           <button type="button" onClick={props.onClick} className="text-[1em]">
