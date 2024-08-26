@@ -112,12 +112,12 @@ const TodoComp: React.FC = () => {
       )}
 
       {isToastShow.success && (
-        <div className="fixed bottom-10 right-10 z-[10]">
+        <div className="fixed bottom-10 md:right-7 right-5 z-[10]">
           <ToastSucc message={textToast} />
         </div>
       )}
       {isToastShow.failed && (
-        <div className="fixed bottom-10 right-10 z-[10]">
+        <div className="fixed bottom-10 md:right-7 right-5 z-[10]">
           <ToastFailed message={textToast} />
         </div>
       )}
