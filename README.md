@@ -1,6 +1,6 @@
 # Todo App with Next.js, MySQL, Prisma, and MetaMask
 
-Live Preview [TodoLink]([https://pages.github.com/](https://todo-meta.onrender.com)).
+Live Preview [TodoLink]([https://pages.github.com/](https://todo-meta.onrender.com)]).
 
 ### Table of Contents
 
