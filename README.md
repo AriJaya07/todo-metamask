@@ -114,23 +114,23 @@ Here are some useful scripts for development and deployment:
 npm run dev
 ```
 
-# Build the application for production
+### Build the application for production
 ```
 npm run build
 ```
 
-# Start the production server
+### Start the production server
 ```
 npm start
 ```
 
 
-# Generate Prisma client
+### Generate Prisma client
 ```
 npx prisma generate
 ```
 
-# Run Prisma migrations
+### Run Prisma migrations
 ```
 npx prisma migrate dev --name <migration-name>
 ```
@@ -160,7 +160,7 @@ Commit your changes:
 git commit -m "Add your message"
 ```
 
-Push to the branch:\
+Push to the branch:
 ```
 git push origin feature/your-feature-name
 ```
