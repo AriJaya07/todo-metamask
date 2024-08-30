@@ -1,7 +1,13 @@
 "use client";
 
 import axios from "axios";
-import React, { createContext, useContext, ReactNode, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  ReactNode,
+  useState,
+  useEffect,
+} from "react";
 
 interface AuthContextType {
   address: string | null;
@@ -17,6 +23,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [address, setAddress] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  useEffect(() => {
+    const localData = localStorage.getItem("user");
+    if (localData) {
+      const parseData = JSON.parse(localData);
+      setAddress(parseData.user.address);
+      setIsAuthenticated(true);
+    }
+  }, [isAuthenticated, address]);
 
   const login = async (address: string, signature: string) => {
     try {
@@ -40,7 +55,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const logout = () => {
     setAddress(null);
     setIsAuthenticated(false);
-    localStorage.removeItem("user")
+    localStorage.removeItem("user");
   };
 
   return (
