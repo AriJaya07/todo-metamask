@@ -10,6 +10,7 @@ export interface TaskActive {
     all: boolean;
     active: boolean;
     completed: boolean;
+    chart: boolean
   }
   
   export interface ToastShow {
