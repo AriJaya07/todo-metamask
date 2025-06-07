@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "react-query";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 
+import ChartTask from "./manage/chartTask";
 import ClearTask from "./manage/clearTask";
 import ToastSucc from "./manage/toastSucc";
 import ToastFailed from "./manage/toastFailed";
@@ -23,6 +24,7 @@ export default function Form(props: {
     all: false,
     active: false,
     completed: false,
+    chart: false,
   });
 
   const [isToastShow, setIsToastShow] = useState<ToastShow>({
@@ -142,11 +144,12 @@ export default function Form(props: {
     }
   );
 
-  const handleTaskActive = (key: "all" | "active" | "completed") => {
+  const handleTaskActive = (key: "all" | "active" | "completed" | "chart") => {
     setIsTaskActive({
       all: key === "all",
       active: key === "active",
       completed: key === "completed",
+      chart: key === "chart",
     });
   };
 
@@ -167,6 +170,7 @@ export default function Form(props: {
         all: true,
         active: false,
         completed: false,
+        chart: false,
       });
     }
   }, [props.isAuthenticated]);
@@ -255,7 +259,7 @@ export default function Form(props: {
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="lg:w-1/2 w-full">
+      <div className="mt-[5rem] lg:w-3/4 w-full">
         <div className="p-5">
           <h5 className="text-[1.5em] font-[600]">Your Tasks</h5>
         </div>
@@ -329,6 +333,18 @@ export default function Form(props: {
                 <p>0</p>
               )}
             </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTaskActive("chart")}
+            className={`${
+              props.isAuthenticated && isTaskActive.chart
+                ? "bg-white"
+                : "bg-[#F4F4F5]"
+            } flex flex-row justify-center items-center gap-[1em] px-8 py-3 w-full`}
+            disabled={!props.isAuthenticated}
+          >
+            <p className="text-center font-[600] text-[1em]">Chart</p>
           </button>
         </div>
 
@@ -419,9 +435,12 @@ export default function Form(props: {
         </form>
 
         {!props.isAuthenticated && <LockSign onClick={props.onClick} />}
-        {props.isAuthenticated && (
-          <SuccSign data={dataFilterTodo} setData={handleOnCheckBox} />
-        )}
+        {props.isAuthenticated &&
+          (!isTaskActive.chart ? (
+            <SuccSign data={dataFilterTodo} setData={handleOnCheckBox} />
+          ) : (
+            <ChartTask filterData={filterData} />
+          ))}
       </div>
 
       {isClearTask && (
