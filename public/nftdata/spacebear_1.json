@@ -1,0 +1,16 @@
+{
+    "name": "EraKoding Token 🧬",
+    "description": "Introducing the future of cuteness. EraKoding Token is a cosmic digital artefact blending charm, imagination, and technology. As part of the Genesis collection, it symbolizes creativity and the beginning of a new journey.",
+    "image": "https://www.erakoding.ink/homepage/human.svg",
+    "external_url": "https://www.erakoding.ink/",
+    "attributes": [
+        {
+            "trait_type": "Artefact",
+            "value": "Erakoding"
+        },
+        {
+            "trait_type": "Collection",
+            "value": "Genesis"
+        }
+    ]
+}
